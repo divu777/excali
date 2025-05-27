@@ -5,7 +5,7 @@ import express from 'express';
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken'
 const router = express.Router();
-
+console.log(config);
 
 router.post("/signup",async(req,res)=>{
 
@@ -22,13 +22,13 @@ router.post("/signup",async(req,res)=>{
         }
 
 
-        const {username,email,password}=req.body
+        const {name,email,password}=req.body
 
         const hashedpassword = await bcrypt.hash(password,10)
 
         const userCreated=await prisma.user.create({
             data:{
-                username,
+                name,
                 password:hashedpassword,
                 email
             }
@@ -76,7 +76,7 @@ router.post("/signin",async (req,res)=>{
 
         const {email,password} = req.body
 
-        const userExist= await prisma.user.findfirst({
+        const userExist= await prisma.user.findUnique({
             where:{
                 email
             }
@@ -88,18 +88,24 @@ router.post("/signin",async (req,res)=>{
                 success:false
             })
             return 
-        }
-        const validpassword= await bcrypt.compareSync(password,userExist.password);
+        }  
+
+        
+        const validpassword= await bcrypt.compare(password,userExist.password);
+        
+
         if(!validpassword){
+
             res.json({
-                message:"Invalid password",
+            message:"Invalid password",
                 success:false}
             )
+
             return
         }
 
 
-        const token = jwt.sign({userId:userExist.id},config.JWT_SECRET!)
+        const token = jwt.sign({userId:userExist.id},config.JWT_SECRET ?? "SECRET")
 
         res.json({
             message:"Signed In Successfully",
@@ -117,6 +123,10 @@ router.post("/signin",async (req,res)=>{
         return
     }   
 })
+
+
+
+
 
 
 

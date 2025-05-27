@@ -8,7 +8,7 @@ type jwttype={
 }
 
 
-const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
+export const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
     try {
 
         const headers = req.headers["authorization"];
@@ -16,10 +16,11 @@ const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
         const decoded=jwt.verify(token,process.env.JWT_SECRET!) as jwttype;
 
         if(!decoded){
-            return res.json({
+             res.json({
                 message:"Error in auth validation , please login first",
                 success:false
             })
+            return;
         }
 
         req.user=decoded.userId
@@ -28,9 +29,10 @@ const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
         
     } catch (error) {
         console.log("Error in the Middleware");
-        return res.json({
+         res.json({
             message:"Auth Required",
             success:false
         })
+        return;
     }
 }

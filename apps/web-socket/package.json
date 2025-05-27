@@ -13,7 +13,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@repo/typescript-config": "*",
+    "@repo/typescript-config": "workspace:*",
     "@types/dotenv": "^8.2.3",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/ws": "^8.18.1",
@@ -21,6 +21,6 @@
     "jsonwebtoken": "^9.0.2",
     "typescript": "^5.8.3",
     "ws": "^8.18.2",
-    "@repo/common":"*"
+    "@repo/common":"workspace:*"
   }
 }

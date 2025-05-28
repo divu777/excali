@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken'
 
 type jwttype={
     userId:string,
-    iat?:Number,
-    exp?:Number
+    iat?:number,
+    exp?:number
 }
 
 

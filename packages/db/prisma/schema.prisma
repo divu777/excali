@@ -38,4 +38,5 @@ model chat{
   user  user @relation(fields: [userId],references: [id])
   roomId Int
   room chatRoom @relation(fields: [roomId],references: [id])
+  message String
 }

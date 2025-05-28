@@ -1,9 +1,7 @@
-import { metadata } from './../../../web/app/layout';
 import express from 'express'
 import { authMiddleware } from '../middleware';
 import { CreateRoomSchema } from '@repo/common';
 import { prisma } from '@repo/db';
-import { json, success } from 'zod/v4';
 
 const router = express.Router()
 
@@ -89,6 +87,41 @@ router.get("/chats/:roomId",async(req,res)=>{
         message:"Found messages for chat room",
         success:true,
         messages
+    })
+    return
+    
+})
+
+
+
+router.get("/roomName/:name",async(req,res)=>{
+    const name =String(req.params)
+    if(!name){
+        res.json({
+            message:"Room Name not provided",
+            success:false
+        })
+        return
+    }
+    const roomInfo = await prisma.chatRoom.findUnique({
+        where:{
+            name
+        }
+    })
+
+
+    if(!roomInfo){
+        res.json({
+            message:"No messages",
+            success:false
+        })
+        return
+    }
+
+    res.json({
+        message:"Found messages for chat room",
+        success:true,
+        roomId:roomInfo.id
     })
     return
     

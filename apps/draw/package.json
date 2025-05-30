@@ -12,7 +12,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "next": "15.3.2",
-    "@repo/typescript-config":"workspace:*"
+    "@repo/typescript-config":"workspace:*",
+    "@repo/ui":"workspace:*"
   },
   "devDependencies": {
     "typescript": "^5",

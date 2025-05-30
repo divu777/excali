@@ -10,7 +10,7 @@
     "typescript": "^5"
   },
   "exports":{
-    ".":"./src/index.ts"
+    ".":"./src/client.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",

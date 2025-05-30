@@ -2,7 +2,9 @@ import  jwt, { verify }  from 'jsonwebtoken';
 import {  WebSocketServer,WebSocket } from "ws";
 import "dotenv/config"
 import { config } from '@repo/common';
+import { prisma } from '@repo/db';
 const wss = new WebSocketServer({port:4000});
+
 
 type Rooms=Record<string,WebSocket[]>
 console.log(config)
@@ -14,7 +16,7 @@ type User={
 
 
 const GloablUser:User[]=[]
-const GlobalRooms:Rooms={}
+const GlobalRooms:Rooms={"divu":[]}
 
 
 type MessageType={
@@ -97,7 +99,7 @@ wss.on('connection',(ws,request)=>{
             rooms:[]
         })
     }
-    ws.on('message',(data)=>{
+    ws.on('message',async(data)=>{
         console.log("message from user "+ data);
             
         const message:MessageType=JSON.parse(data.toString());
@@ -133,7 +135,7 @@ wss.on('connection',(ws,request)=>{
                 return
             }
 
-            const findUser=GloablUser.find(x=>x.ws===ws)
+            const findUser=GloablUser.find(x=>x.ws===ws)!
 
             const UserInRoom = findUser?.rooms.find(room=>room===name)
 
@@ -141,6 +143,13 @@ wss.on('connection',(ws,request)=>{
                 ws.send("You are not part of this room , please join it first")
                 return
             }
+            await prisma.chat.create({
+                data:{
+                    userId:findUser.userId,
+                    roomId:Number(name),
+                    message:chat
+                }
+            })
             GlobalRooms[name].map(socket=>{
                 socket!==ws ? socket.send(chat) : console.log("skipped the sender")
             })
@@ -151,6 +160,7 @@ wss.on('connection',(ws,request)=>{
                 ws.send("room already exist with this name")
                 return;
             }
+
 
             GlobalRooms[name]=[ws]
            const findUser= GloablUser.find((user)=>user.ws===ws)!;

@@ -1,9 +1,10 @@
+import AuthPage from '@/components/AuthPage'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-      sign up
+      <AuthPage SignIn={false} />
     </div>
   )
 }

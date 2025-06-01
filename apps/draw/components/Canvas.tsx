@@ -1,32 +1,32 @@
 "use client"
+import { drawing } from '@/app/draw'
 import React, { useEffect, useRef, useState } from 'react'
 
-const Canvas = () => {
+const Canvas = ({roomId}:{roomId:number}) => {
         const canvasRef = useRef<HTMLCanvasElement>(null)
-        const [cordX,setCordX] = useState(0);
-        const [cordY,setCordY] = useState(0);
-        const [width,setWidth] = useState(0);
-        const [height,setHeight] = useState(0)
+        const [socket,setSocket] = useState<WebSocket | null >()
 
     useEffect(()=>{
 
-        if(canvasRef.current){
-            const canvas = canvasRef.current
-            const ctx= canvas.getContext("2d");
+      const ws = new WebSocket("ws://localhost:4000")
 
-            if(!ctx){
-                return
-            }
 
-            canvas.addEventListener('mousedown',(e)=>{
-                
-            })
+      ws.onopen=()=>{
+        setSocket(ws)
 
-            canvas.addEventListener('mouseup',(e)=>{
+      }
 
-            })
-            ctx.strokeRect(cordX,cordY,width,height)
-        }
+      ws.onclose=()=>{
+        setSocket(null)
+      }
+
+      if(canvasRef.current){
+        drawing(canvasRef.current,String(roomId))
+      }
+
+
+
+        
 
     },[canvasRef])
 
@@ -41,3 +41,5 @@ const Canvas = () => {
 }
 
 export default Canvas
+
+

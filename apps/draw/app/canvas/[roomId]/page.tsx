@@ -1,4 +1,4 @@
-import Canvas from '@/components/Canvas'
+import MainCanvas from '@/components/MainCanvas'
 import React, { useEffect, useRef } from 'react'
 
 const  page = async({params}:{params:Promise<{roomId:number}>}) => {
@@ -8,7 +8,7 @@ const  page = async({params}:{params:Promise<{roomId:number}>}) => {
 
   return (
     <div className='h-screen w-screen flex justify-center items-center'>
-        <Canvas roomId={roomId}/>
+        <MainCanvas roomId={roomId}/>
        
     </div>
   )

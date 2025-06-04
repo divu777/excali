@@ -1,45 +1,31 @@
-"use client"
+'use client'
 import { drawing } from '@/app/draw'
 import React, { useEffect, useRef, useState } from 'react'
 
-const Canvas = ({roomId}:{roomId:number}) => {
-        const canvasRef = useRef<HTMLCanvasElement>(null)
-        const [socket,setSocket] = useState<WebSocket | null >()
+const Canvas = ({roomId,socket}:{roomId:number,socket:WebSocket}) => {
+
+
+    const canvasRef = useRef<HTMLCanvasElement>(null)
 
     useEffect(()=>{
-
-      const ws = new WebSocket("ws://localhost:4000")
-
-
-      ws.onopen=()=>{
-        setSocket(ws)
-
+        if(canvasRef.current){
+        drawing(canvasRef.current,String(roomId), socket)
       }
 
-      ws.onclose=()=>{
-        setSocket(null)
-      }
-
-      if(canvasRef.current){
-        drawing(canvasRef.current,String(roomId))
-      }
+    },[canvasRef.current])
 
 
+      
 
-        
 
-    },[canvasRef])
 
   return (
     <div>
-         <canvas ref={canvasRef}  className='bg-white h-screen w-screen'>
+       <canvas ref={canvasRef}  className='bg-white h-screen w-screen'>
 
         </canvas>
-      
     </div>
   )
 }
 
 export default Canvas
-
-

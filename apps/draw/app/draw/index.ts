@@ -18,8 +18,13 @@ type Shape =
 const drawExistingshapes = (
   shapesArray: Shape[],
   ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement
+  canvas : HTMLCanvasElement
 ) => {
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (shapesArray.length == 0) {
     return;
   }
@@ -33,9 +38,10 @@ const drawExistingshapes = (
 
 const getOldShapes = async (roomId: string) => {
   const result = await axios.get(
-    `http:localhost:3000/api/v1/room/chats/${roomId}`
+    `http://localhost:8080/api/v1/room/chats/${roomId}`
   );
 
+  console.log(result )
   const messages = result.data.messages;
 
   const shapes = messages.map((x: { message: string }) => {
@@ -46,8 +52,8 @@ const getOldShapes = async (roomId: string) => {
   return shapes;
 };
 
-export async function drawing(canvas: HTMLCanvasElement, roomId: string) {
-  const ShapesState: Shape[] = []
+export async function drawing(canvas: HTMLCanvasElement, roomId: string, socket:WebSocket) {
+  const ShapesState: Shape[] = await getOldShapes(roomId);
   const ctx = canvas.getContext("2d");
   const { width, height } = canvas.getBoundingClientRect();
   canvas.width = width;
@@ -56,12 +62,22 @@ export async function drawing(canvas: HTMLCanvasElement, roomId: string) {
   if (!ctx) {
     return;
   }
-  ctx.strokeStyle = "blue";
-  ctx.lineWidth = 2;
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawExistingshapes(ShapesState, ctx, canvas);
+  socket.onmessage=(event)=>{
+    const message = JSON.parse(event.data)
+  
+    console.log(" messs rec" + event.data + message);
+
+    if(message.type=="chat"){
+      
+      ShapesState.push(message.payload.chat);
+      console.log(ShapesState)
+        drawExistingshapes(ShapesState, ctx,canvas);
+
+    }
+  }
+
+  drawExistingshapes(ShapesState, ctx,canvas);
 
   let moving = false;
   let StartX = 0;
@@ -83,15 +99,31 @@ export async function drawing(canvas: HTMLCanvasElement, roomId: string) {
       width: e.clientX - StartX,
       height: e.clientY - StartY,
     });
+
+
+    
+      socket.send(JSON.stringify({
+        "type":"chat",
+        "payload":{
+        "roomId":roomId,
+        "chat":{
+      "type": "rect",
+      "x": StartX,
+      "y": StartY,
+      "width": e.clientX - StartX,
+      "height": e.clientY - StartY,
+      }
+    }
+  }
+    
+    ))
   });
 
   canvas.addEventListener("mousemove", (e) => {
     if (moving) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "black";
 
-      drawExistingshapes(ShapesState, ctx, canvas);
+
+      drawExistingshapes(ShapesState, ctx,canvas);
 
       ctx.strokeRect(StartX, StartY, e.clientX - StartX, e.clientY - StartY);
     }

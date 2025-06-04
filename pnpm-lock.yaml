@@ -72,12 +72,18 @@ importers:
 
   apps/draw:
     dependencies:
+      '@repo/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      axios:
+        specifier: ^1.9.0
+        version: 1.9.0
       next:
         specifier: 15.3.2
         version: 15.3.2(react-dom@19.1.0)(react@19.1.0)

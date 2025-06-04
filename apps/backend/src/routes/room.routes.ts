@@ -55,7 +55,8 @@ router.post("/create",authMiddleware,async (req,res)=>{
 
 
 router.get("/chats/:roomId",async(req,res)=>{
-    const roomId =Number(req.params)
+    const {roomId} =req.params
+    console.log(roomId);
     if(!roomId){
         res.json({
             message:"Room Id not provided",
@@ -65,7 +66,7 @@ router.get("/chats/:roomId",async(req,res)=>{
     }
     const messages = await prisma.chat.findMany({
         where:{
-            roomId
+            roomId:Number(roomId)
         },
         orderBy:{
             id:'desc'

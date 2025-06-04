@@ -6,39 +6,35 @@ import { prisma } from '@repo/db';
 const wss = new WebSocketServer({port:4000});
 
 
-type Rooms=Record<string,WebSocket[]>
+type Rooms=Record<number,WebSocket[]>
 console.log(config)
 type User={
     userId:string,
     ws:WebSocket,
-    rooms: string[]
+    rooms: number[]
 }
 
 
+
 const GloablUser:User[]=[]
-const GlobalRooms:Rooms={"divu":[]}
+const GlobalRooms:Rooms={}
 
 
-type MessageType={
-    type:"create-room",
-    payload:{
-        name:string
-    }
-} | {
+type MessageType= {
     type:"join-room",
     payload:{
-        name:string,
+        roomId:number,
     }
 } | {
     type:"leave-room",
     payload:{
-        name:string
+        roomId:number
     }
 } | {
     type:"chat",
     payload:{
         chat:string,
-        name:string
+        roomId:number
     }
 }
 
@@ -48,7 +44,7 @@ type MessageType={
 
 const AuthenticateUser=(token:string)=>{
     try {
-        const decoded = jwt.verify(token,config.JWT_SECRET);
+        const decoded = jwt.verify(token,"supersecretpassword");
 
     if(typeof(decoded) === 'string'){
         return null
@@ -100,44 +96,57 @@ wss.on('connection',(ws,request)=>{
         })
     }
     ws.on('message',async(data)=>{
-        console.log("message from user "+ data);
             
         const message:MessageType=JSON.parse(data.toString());
 
+        console.log("message from user "+ JSON.stringify(message));
+
+
         if(message.type=="join-room"){
-            const {name}=message.payload
+            const {roomId}=message.payload
 
-            if(GlobalRooms[name]){
+            console.log("Dev"+roomId)
 
-                GlobalRooms[name].push(ws);
-                const findUser=GloablUser.find(x=>x.ws===ws)
-                findUser?.rooms.push(name)
-            }else{
-                ws.send("Room does not exist")
+
+            if(!GlobalRooms[roomId]){
+                console.log("heeerrr3")
+                GlobalRooms[roomId]=[]   
             }
-        }else if(message.type=="leave-room"){
-            const {name} = message.payload
 
-            if(!GlobalRooms[name]){
+            console.log("here4")
+            GlobalRooms[roomId].push(ws);
+            const findUser=GloablUser.find(x=>x.ws===ws)
+            findUser?.rooms.push(roomId)
+
+
+
+        }else if(message.type=="leave-room"){
+            const {roomId} = message.payload
+
+            if(!GlobalRooms[roomId]){
                 ws.send("Room with this name does not exist");
             }else{
-                GlobalRooms[name]=GlobalRooms[name].filter(socket=>socket !==ws)  
+                GlobalRooms[roomId]=GlobalRooms[roomId].filter(socket=>socket !==ws)  
                 const findUser=GloablUser.find(z=>z.ws===ws)!;
-                findUser.rooms=findUser.rooms.filter(room=>room!==name)
-                if (GlobalRooms[name].length === 0) {
-                    delete GlobalRooms[name];
+                findUser.rooms=findUser.rooms.filter(room=>room!==roomId)
+                if (GlobalRooms[roomId].length === 0) {
+                    delete GlobalRooms[roomId];
                 }
             }
         }else if(message.type=="chat"){
-            const {name,chat}=message.payload
-            if(!GlobalRooms[name]){
-                ws.send("room does not exist");
+            console.log("here")
+            console.log(JSON.stringify(message.payload))
+            const {roomId,chat}=message.payload
+            console.log(roomId + " cchc" )
+            if(!GlobalRooms[roomId]){
+                console.log("here2")
                 return
             }
 
-            const findUser=GloablUser.find(x=>x.ws===ws)!
+            const findUser=GloablUser.find(x=>x.ws==ws)!
+            console.log(  findUser   + "  fff")
 
-            const UserInRoom = findUser?.rooms.find(room=>room===name)
+            const UserInRoom = findUser?.rooms.find(room=>room===roomId)
 
             if(!UserInRoom){
                 ws.send("You are not part of this room , please join it first")
@@ -146,25 +155,13 @@ wss.on('connection',(ws,request)=>{
             await prisma.chat.create({
                 data:{
                     userId:findUser.userId,
-                    roomId:Number(name),
-                    message:chat
+                    roomId:Number(roomId),
+                    message:JSON.stringify(chat)
                 }
             })
-            GlobalRooms[name].map(socket=>{
-                socket!==ws ? socket.send(chat) : console.log("skipped the sender")
+            GlobalRooms[roomId].map(socket=>{
+                 socket.send(JSON.stringify(message)) 
             })
-        }
-        else if(message.type==="create-room"){
-            const {name}=message.payload
-            if(GlobalRooms[name]){
-                ws.send("room already exist with this name")
-                return;
-            }
-
-
-            GlobalRooms[name]=[ws]
-           const findUser= GloablUser.find((user)=>user.ws===ws)!;
-           findUser.rooms.push(name)
         }
 
     })

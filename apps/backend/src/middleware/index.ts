@@ -13,8 +13,13 @@ export const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
 
         const headers = req.headers["authorization"];
         const token = headers?.split(" ")[1]!;
-        const decoded=jwt.verify(token,process.env.JWT_SECRET!) as jwttype;
+        console.log(token )
+        const decoded=  jwt.verify(token,"supersecretpassword");
+        console.log(decoded + "    ggg")
 
+        if(typeof decoded =="string"){
+            return
+        }
         if(!decoded){
              res.json({
                 message:"Error in auth validation , please login first",
@@ -28,7 +33,7 @@ export const authMiddleware=(req:Request,res:Response,next:NextFunction)=>{
         next()
         
     } catch (error) {
-        console.log("Error in the Middleware");
+        console.log("Error in the Middleware" + error);
          res.json({
             message:"Auth Required",
             success:false

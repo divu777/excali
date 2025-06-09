@@ -7,7 +7,7 @@ const MainCanvas = ({roomId}:{roomId:number}) => {
 
       useEffect(()=>{
 
-      const ws = new WebSocket("ws://localhost:4000?token=")
+      const ws = new WebSocket("ws://localhost:4000?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZjNlOWY4YS1mMzI3LTQ1MjAtYWM0ZC1iMzNmZGQzZGI4MWIiLCJpYXQiOjE3NDgzMzMwNzR9.40crTy7S62BaAkR6DWamNL5_w8O3ApkOdtWAyrhwPjE")
 
       ws.onopen=()=>{
         setSocket(ws)

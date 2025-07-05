@@ -40,17 +40,42 @@ const Canvas = ({roomId,socket}:{roomId:number,socket:WebSocket}) => {
 
 
   return (
-    <div>
-       <canvas ref={canvasRef}  className='bg-white h-screen w-screen'>
-         
-        </canvas>
-         <div className='absolute  top-1/2 left-5 flex flex-col items-center gap-5 justify-center z-10 bg-amber-700'>
-            <div onClick={(e)=>setSelectedShape("rect")}><Square /></div>
-            <div onClick={(e)=>setSelectedShape("circle")}><Circle/></div>
-            <div onClick={(e)=>setSelectedShape("line")}><Minus/></div>
-  
-          </div>
-    </div>
+    <div className="relative w-screen h-screen">
+  {/* Canvas */}
+  <canvas ref={canvasRef} className="bg-black w-full h-full" />
+
+  {/* Top Toolbar */}
+  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 flex items-center gap-4 bg-gray-800 bg-opacity-90 px-4 py-2 rounded-md shadow-md border border-gray-700">
+    <button
+      onClick={() => setSelectedShape("rect")}
+      className={`p-2 rounded transition ${
+        shape === "rect" ? "bg-gray-700" : "hover:bg-gray-700"
+      }`}
+      title="Rectangle"
+    >
+      <Square className="text-white" />
+    </button>
+    <button
+      onClick={() => setSelectedShape("circle")}
+      className={`p-2 rounded transition ${
+        shape === "circle" ? "bg-gray-700" : "hover:bg-gray-700"
+      }`}
+      title="Circle"
+    >
+      <Circle className="text-white" />
+    </button>
+    <button
+      onClick={() => setSelectedShape("line")}
+      className={`p-2 rounded transition ${
+        shape === "line" ? "bg-gray-700" : "hover:bg-gray-700"
+      }`}
+      title="Line"
+    >
+      <Minus className="text-white" />
+    </button>
+  </div>
+</div>
+
   )
 }
 
